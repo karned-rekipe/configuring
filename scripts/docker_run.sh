@@ -5,6 +5,7 @@ sudo docker exec -it node1 /bin/bash
 apt update
 apt install openssh-server
 service ssh start
+apt install sudo
 
 apt install vim
 vim /etc/ssh/sshd_config
