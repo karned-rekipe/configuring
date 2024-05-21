@@ -3,4 +3,4 @@
 ansible_host: 172.17.0.2
 ansible_port: 22
 ansible_user: deploy
-ansible_become_password: yourpassword
+ansible_become_password: password
