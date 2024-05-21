@@ -1,4 +1,1 @@
-- création d'un script docker pour tester ansible sur cette machine
-    installation de ssh
-    échange de clé
-    création d'un Dockerfile poru simplifier les choses
+- installer K8s 
