@@ -1,32 +1,55 @@
 ---
-# installation de Kubernetes 1.30 sur Ubuntu 22.04 (jammy)
-- name: Add Kubernetes GPG key
-  shell: sudo mkdir -p /etc/apt/keyrings | curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg | sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+- name: Check if kubectl is installed
+  command: kubectl version --client
+  register: kubectl_check
+  failed_when: false
+  changed_when: false
 
-- name: Add Kubernetes repository
-  shell: echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+- name: Set kubectl_installed fact based on kubectl_check
+  set_fact:
+    kubectl_installed: "{{ kubectl_check.rc == 0 }}"
 
-- name: Update apt package index
-  apt:
-    update_cache: yes
+- name: Get installed kubectl version
+  command: kubectl version --client -short | awk '/Client/ {print $3}'
+  register: installed_kubectl_version
+  failed_when: false
+  changed_when: false
+  when: kubectl_installed
 
-- name: Install kubelet, kubeadm, and kubectl
-  apt:
-    name:
-      - kubelet
-      - kubeadm
-      - kubectl
-    state: present
+- set_fact:
+    installed_kubectl_version: "{{ installed_kubectl_version.stdout.split('\n')[0].split(': ')[1] }}"
+  when: kubectl_installed
 
-- name: Hold kubelet, kubeadm, and kubectl at current version
-  apt:
-    name:
-      - kubelet
-      - kubeadm
-      - kubectl
-    state: hold
+- name: Add required tools (Debian/Ubuntu)
+  shell: |
+    apt-get update && sudo apt-get install -y gnupg software-properties-common wget curl git
+  when: ansible_os_family == 'Debian'
+  become: yes
 
-- name: Disable swap
-  command: swapoff -a
-  when: ansible_virtualization_type != "docker"
+- name: Retrieve the latest kubectl version
+  command:
+    cmd: "curl -L -s https://dl.k8s.io/release/stable.txt"
+  register: latest_kubectl_version
+  changed_when: false
 
+- name: Install kubectl using binary 
+  block:
+    - name: Download kubectl binary
+      get_url:
+        url: "https://dl.k8s.io/release/{{ latest_kubectl_version.stdout }}/bin/linux/amd64/kubectl"
+        dest: "/tmp/kubectl"
+        mode: '0755'
+        force: no
+      when: not kubectl_installed or (installed_kubectl_version.stdout is defined and installed_kubectl_version.stdout != latest_kubectl_version.stdout)
+
+    - name: Install kubectl
+      command:
+        cmd: "sudo install -o root -g root -m 0755 /tmp/kubectl /usr/local/bin/kubectl"
+      become: yes
+      when: not kubectl_installed or (installed_kubectl_version.stdout is defined and installed_kubectl_version.stdout != latest_kubectl_version.stdout)
+
+    - name: Clean up the downloaded binary
+      file:
+        path: "/tmp/kubectl"
+        state: absent
+      when: not kubectl_installed or (installed_kubectl_version.stdout is defined and installed_kubectl_version.stdout != latest_kubectl_version.stdout)

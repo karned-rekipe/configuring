@@ -3,5 +3,4 @@
   hosts: production 
   become: yes
   roles:
-    - k8s-setup
-    - k8s-node1
+    - pako-23.kubernetes
