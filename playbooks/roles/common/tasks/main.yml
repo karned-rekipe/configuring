@@ -1,5 +1,4 @@
 ---
-
 # Ensure basic utilities are installed
 - name: Ensure necessary packages are installed
   package:
@@ -9,4 +8,8 @@
       - git
       - tree
       - python3-pip
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - lsb-release
     state: present

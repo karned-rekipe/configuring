@@ -1,0 +1,7 @@
+---
+- name: Deploy K8S node1
+  hosts: production 
+  become: yes
+  roles:
+    - k8s-setup
+    - k8s-node1
