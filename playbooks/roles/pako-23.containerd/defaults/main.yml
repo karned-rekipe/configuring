@@ -1,2 +1,0 @@
----
-containerd_distro: "{{ ansible_facts['lsb']['id'] | lower }}"
