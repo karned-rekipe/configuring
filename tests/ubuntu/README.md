@@ -11,3 +11,7 @@ Si une machine du même nom existe déjà, il faudra la supprimer en la stoppant
 - docker ps : récupération de ID
 - docker stop ID
 - docker rm ID
+
+
+Pourlancer un docker simple
+docker run -d --name my-ubuntu-container ubuntu:22.04 sleep infinity
