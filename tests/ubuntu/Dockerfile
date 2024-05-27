@@ -1,5 +1,7 @@
 FROM ubuntu:22.04
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get install -y \
     curl \
     wget \
@@ -21,7 +23,10 @@ RUN apt-get update && apt-get install -y \
     openssh-client \
     openssh-server \
     sudo \
-    && rm -rf /var/lib/apt/lists/*
+    software-properties-common \
+    rsyslog \
+    systemd \ 
+    systemd-cron
 
 COPY ./sshd_config /etc/ssh/sshd_config
 
@@ -41,7 +46,10 @@ RUN chmod 600 /home/deploy/.ssh/authorized_keys && \
 
 EXPOSE 22
 
-COPY ./cmd.sh /cmd.sh
-RUN chmod +x /cmd.sh
+RUN sed -i 's/^\($ModLoad imklog\)/#\1/' /etc/rsyslog.conf
 
-CMD ["/cmd.sh"]
+RUN rm -f /lib/systemd/system/systemd*udev* \
+  && rm -f /lib/systemd/system/getty.target
+
+VOLUME ["/sys/fs/cgroup", "/tmp", "/run"]
+CMD ["/lib/systemd/systemd"]

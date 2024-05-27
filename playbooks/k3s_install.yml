@@ -3,4 +3,4 @@
   hosts: production 
   become: yes
   roles:
-    - pako-23.kubernetes
+    - k3s_install

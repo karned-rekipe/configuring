@@ -6,3 +6,9 @@
 #Ansible #DatascientestDevops
 - Initialisation du dépôt
 - Playbook update / common
+
+2024-05-21
+#Ansible #DatascientestDevops #K8s 
+- installation de K8s
+test sur une ubuntu fraiche des etapes de l'installation
+Résultat : impossible de le lancer sur un Docker il faut un accès au système que je n'arrive pas à mettre en place. Je l'ai installé sur mon poste directement pour avancer.
