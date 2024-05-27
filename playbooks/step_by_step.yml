@@ -1,0 +1,6 @@
+---
+- name: Step By Step
+  hosts: localhost 
+  become: yes
+  roles:
+    - helm_install
