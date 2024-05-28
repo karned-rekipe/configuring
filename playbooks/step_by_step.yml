@@ -2,5 +2,6 @@
 - name: Step By Step
   hosts: localhost 
   become: yes
+  gather_facts: no
   roles:
-    - k8s_install
+    - jenkins_install
