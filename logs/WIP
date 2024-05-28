@@ -1,0 +1,13 @@
+Installation de K8s
+
+sudo swapoff -a
+sudo sed -i '/ swap / s/^/#/' /etc/fstab 
+
+sudo apt install -y apt-transport-https ca-certificates curl
+
+sudo curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+
+
+snap install kubeadm --classic
+snap install kubectl --classic
+snap install kubelet --classic
