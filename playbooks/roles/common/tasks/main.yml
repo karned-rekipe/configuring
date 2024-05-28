@@ -12,4 +12,7 @@
       - ca-certificates
       - gnupg
       - lsb-release
+      - tar
+      - gzip
+      - software-properties-common
     state: present

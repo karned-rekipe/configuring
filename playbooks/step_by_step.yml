@@ -3,4 +3,4 @@
   hosts: localhost 
   become: yes
   roles:
-    - helm_install
+    - k8s_install

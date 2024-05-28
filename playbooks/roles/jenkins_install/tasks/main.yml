@@ -1,0 +1,17 @@
+---
+- name: Create Jenkins namespace
+  kubernetes.core.k8s:
+    api_version: v1
+    kind: Namespace
+    name: jenkins
+
+- name: Add Jenkins Helm repo
+  command: /usr/local/bin/helm repo add jenkinsci https://charts.jenkins.io
+  args:
+    warn: false
+
+- name: Update Helm repos
+  command: /usr/local/bin/helm repo update
+  
+- name: Install Jenkins using Helm
+  command: /usr/local/bin/helm install jenkins jenkinsci/jenkins --namespace jenkins

@@ -1,0 +1,55 @@
+---
+- name: Install Kubernetes Python module
+  pip:
+    name: kubernetes
+
+- name: Add Kubernetes signing key
+  ansible.builtin.shell:
+    cmd: "curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/kubernetes-archive-keyring.gpg"
+  become: yes
+
+- name: Add Kubernetes repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-jammy main"
+    state: present
+  become: yes
+
+- name: Install Kubernetes components
+  ansible.builtin.apt:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+  become: yes
+
+- name: Initialize the Kubernetes cluster
+  ansible.builtin.shell:
+    cmd: kubeadm init --pod-network-cidr=10.244.0.0/16
+  become: true
+  when: inventory_hostname == groups['masters'][0]
+
+- name: Create .kube directory
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    mode: '0755'
+  become: true
+  when: inventory_hostname == groups['masters'][0]
+
+- name: Copy admin kubeconfig to user
+  ansible.builtin.copy:
+    src: /etc/kubernetes/admin.conf
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    remote_src: yes
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+  become: true
+  when: inventory_hostname == groups['masters'][0]
+
+- name: Install Calico network plugin
+  ansible.builtin.shell:
+    cmd: kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+  become: true
+  when: inventory_hostname == groups['masters'][0]
